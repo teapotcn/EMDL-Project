@@ -1,6 +1,8 @@
 import requests, json
 from tqdm import tqdm
 from you_get import common
+from bs4 import BeautifulSoup
+import urllib.request
 headers = {'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET4.0C; .NET4.0E; rv:11.0) like Gecko"}
 
 def wyydownloader(ID):
@@ -41,4 +43,18 @@ def searcher(name):
     a = input('请输入你选择下载的歌曲: ')
     wyydownloader(str(d[int(a)]))
 def playlist(ID):
-    pass
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.221 Safari/537.36 SE 2.X MetaSr 1.0',}
+    url="https://music.163.com/playlist?id=98332770"
+    response = requests.get(url=url, headers=headers)
+    html=response.content.decode(encoding="utf-8")
+    #print(html)
+    soup = BeautifulSoup(html, 'lxml')
+    results = soup.find('ul',{'class':'f-hide'})
+    results=results.find_all('a')
+    print(results)
+    for music in results:
+        #print(music.text, music['href'])
+        #下载歌曲
+        music_url="http://music.163.com/song/media/outer/url?id={}.mp3".format(music['href'].split("=")[1])
+        print(music_url)
+        urllib.request.urlretrieve(music_url,music.text+'.mp3')
